@@ -10,18 +10,11 @@ define([
 
     return {
         Import: function(feedbackUrl, library) {
-            var dbError;
-
-            if (library) {
-                dbError = gettext('There was an error while importing the new library to our database.');
-            } else {
-                dbError = gettext('There was an error while importing the new course to our database.');
-            }
-
-            var bar = $('.progress-bar'),
-                fill = $('.progress-fill'),
-                submitBtn = $('.submit-button'),
-                chooseBtn = $('.view-import .choose-file-button'),
+            var dbError,
+                $bar = $('.progress-bar'),
+                $fill = $('.progress-fill'),
+                $submitBtn = $('.submit-button'),
+                $chooseBtn = $('.view-import .choose-file-button'),
                 defaults = [
                     gettext('There was an error during the upload process.') + '\n',
                     gettext('There was an error while unpacking the file.') + '\n',
@@ -30,16 +23,39 @@ define([
                 ],
                 unloading = false,
                 previousImport = Import.storedImport(),
-                file;
+                file,
+                onComplete = function() {
+                    $bar.hide();
+                    $chooseBtn
+                        .find('.copy').text(gettext('Choose new file')).end()
+                        .show();
+                },
+                showImportSubmit = function() {
+                    var filepath = $(this).val(),
+                        msg;
 
-            var onComplete = function() {
-                bar.hide();
-                chooseBtn
-                    .find('.copy').text(gettext('Choose new file')).end()
-                    .show();
-            };
+                    if (filepath.substr(filepath.length - 6, 6) === 'tar.gz') {
+                        $('.error-block').hide();
+                        $('.file-name').text($(this).val().replace('C:\\fakepath\\', ''));
+                        $('.file-name-block').show();
+                        $chooseBtn.hide();
+                        $submitBtn.show();
+                        $('.progress').show();
+                    } else {
+                        msg = gettext('File format not supported. Please upload a file with a {ext} extension.')
+                            .replace('{ext}', '<code>tar.gz</code>');
 
-            $(window).on('beforeunload', function(event) { unloading = true; });
+                        $('.error-block').text(msg).show();
+                    }
+                };
+
+            if (library) {
+                dbError = gettext('There was an error while importing the new library to our database.');
+            } else {
+                dbError = gettext('There was an error while importing the new course to our database.');
+            }
+
+            $(window).on('beforeunload', function() { unloading = true; });
 
             // Display the status of last file upload on page load
             if (previousImport) {
@@ -50,7 +66,7 @@ define([
                     .show();
 
                 if (previousImport.completed !== true) {
-                    chooseBtn.hide();
+                    $chooseBtn.hide();
                 }
 
                 Import.resume().then(onComplete);
@@ -63,12 +79,12 @@ define([
                 autoUpload: false,
                 add: function(e, data) {
                     Import.reset();
-                    submitBtn.unbind('click');
+                    $submitBtn.unbind('click');
 
                     file = data.files[0];
 
                     if (file.name.match(/tar\.gz$/)) {
-                        submitBtn.click(function(event) {
+                        $submitBtn.click(function(event) {
                             event.preventDefault();
 
                             Import.start(
@@ -76,14 +92,13 @@ define([
                                 feedbackUrl.replace('fillerName', file.name)
                             ).then(onComplete);
 
-                            submitBtn.hide();
+                            $submitBtn.hide();
                             data.submit().complete(function(result, textStatus, xhr) {
+                                var serverMsg, errMsg, stage;
                                 if (xhr.status !== 200) {
-                                    var serverMsg, errMsg, stage;
-
                                     try {
                                         serverMsg = $.parseJSON(result.responseText) || {};
-                                    } catch (e) {
+                                    } catch (err) {
                                         return;
                                     }
 
@@ -92,10 +107,9 @@ define([
                                     if (serverMsg.hasOwnProperty('Stage')) {
                                         stage = Math.abs(serverMsg.Stage);
                                         Import.cancel(defaults[stage] + errMsg, stage);
-                                    }
-                                    // It could be that the user is simply refreshing the page
-                                    // so we need to be sure this is an actual error from the server
-                                    else if (!unloading) {
+                                    } else if (!unloading) {
+                                        // It could be that the user is simply refreshing the page
+                                        // so we need to be sure this is an actual error from the server
                                         $(window).off('beforeunload.import');
 
                                         Import.reset();
@@ -107,7 +121,9 @@ define([
                             });
                         });
                     } else {
-                        data.files = [];
+                        // Can't fix this lint error without major structural changes, which I'm not comfortable
+                        // doing given this file's test coverage
+                        data.files = [];  // eslint-disable-line no-param-reassign
                     }
                 },
 
@@ -124,46 +140,28 @@ define([
                         doneAt = 99;
                     }
                     if (percentInt >= doneAt) {
-                        bar.hide();
+                        $bar.hide();
 
                         // Start feedback with delay so that current stage of
                         // import properly updates in session
                         setTimeout(function() { Import.pollStatus(); }, 3000);
                     } else {
-                        bar.show();
-                        fill.width(percentVal).text(percentVal);
+                        $bar.show();
+                        $fill.width(percentVal).text(percentVal);
                     }
                 },
                 sequentialUploads: true,
                 notifyOnError: false
             });
 
-
-            var showImportSubmit = function(e) {
-                var filepath = $(this).val();
-
-                if (filepath.substr(filepath.length - 6, 6) === 'tar.gz') {
-                    $('.error-block').hide();
-                    $('.file-name').text($(this).val().replace('C:\\fakepath\\', ''));
-                    $('.file-name-block').show();
-                    chooseBtn.hide();
-                    submitBtn.show();
-                    $('.progress').show();
-                } else {
-                    var msg = gettext('File format not supported. Please upload a file with a {file_extension} extension.')
-                        .replace('{file_extension}', '<code>tar.gz</code>');
-
-                    $('.error-block').text(msg).show();
-                }
-            };
-
             domReady(function() {
                 // import form setup
                 $('.view-import .file-input').bind('change', showImportSubmit);
-                $('.view-import .choose-file-button, .view-import .choose-file-button-inline').bind('click', function(e) {
-                    e.preventDefault();
-                    $('.view-import .file-input').click();
-                });
+                $('.view-import .choose-file-button, .view-import .choose-file-button-inline')
+                    .bind('click', function(e) {
+                        e.preventDefault();
+                        $('.view-import .file-input').click();
+                    });
             });
         }
     };
