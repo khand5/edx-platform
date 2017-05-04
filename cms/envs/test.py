@@ -194,7 +194,7 @@ simplefilter('ignore')
 ################################# CELERY ######################################
 
 CELERY_ALWAYS_EAGER = True
-CELERY_RESULT_BACKEND = 'djcelery.backends.cache:DatabaseBackend'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 CLEAR_REQUEST_CACHE_ON_TASK_COMPLETION = False
 

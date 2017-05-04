@@ -47,6 +47,16 @@ KNOWN_RETRY_ERRORS = (  # Errors we expect occasionally, should be resolved on r
 RECALCULATE_GRADE_DELAY = 2  # in seconds, to prevent excessive _has_db_updated failures. See TNL-6424.
 
 
+@task()
+def add(x, y):
+    return x + y
+
+
+@task()
+def tsum(nums):
+    return sum(nums)
+
+
 class _BaseTask(PersistOnFailureTask, LoggedTask):  # pylint: disable=abstract-method
     """
     Include persistence features, as well as logging of task invocation.
