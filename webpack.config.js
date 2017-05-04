@@ -34,7 +34,11 @@ var wpconfig = {
             debug: !isProd
         }),
         new BundleTracker({
-            path: process.env.STATIC_ROOT,
+            path: process.env.STATIC_ROOT_CMS,
+            filename: 'webpack-stats.json'
+        }),
+        new BundleTracker({
+            path: process.env.STATIC_ROOT_LMS,
             filename: 'webpack-stats.json'
         }),
         new webpack.ProvidePlugin({
