@@ -4,7 +4,8 @@ define([
     'jquery',
     'gettext',
     'jQuery-File-Upload/js/jquery.fileupload',
-    'jquery.cookie'
+    'jquery.cookie',
+    '../../../../cms/js/main'
 ], function(domReady, Import, $, gettext) {
     'use strict';
 
