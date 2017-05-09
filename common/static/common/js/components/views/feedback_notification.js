@@ -1,5 +1,7 @@
 define(['jquery', 'underscore', 'underscore.string', './feedback'],
     function($, _, str, SystemFeedbackView) {
+        'use strict';
+
         var Notification = SystemFeedbackView.extend({
             options: $.extend({}, SystemFeedbackView.prototype.options, {
                 type: 'notification',
@@ -7,8 +9,8 @@ define(['jquery', 'underscore', 'underscore.string', './feedback'],
             })
         });
 
-    // create Notification.Warning, Notification.Confirmation, etc
-        var capitalCamel, intents;
+        // create Notification.Warning, Notification.Confirmation, etc
+        var capitalCamel, intents, miniOptions;
         capitalCamel = _.compose(str.capitalize, str.camelize);
         intents = ['warning', 'error', 'confirmation', 'announcement', 'step-required', 'help', 'mini'];
         _.each(intents, function(intent) {
@@ -21,8 +23,8 @@ define(['jquery', 'underscore', 'underscore.string', './feedback'],
             Notification[capitalCamel(intent)] = subclass;
         });
 
-    // set more sensible defaults for Notification.Mini views
-        var miniOptions = Notification.Mini.prototype.options;
+        // set more sensible defaults for Notification.Mini views
+        miniOptions = Notification.Mini.prototype.options;
         miniOptions.minShown = 1250;
         miniOptions.closeIcon = false;
 

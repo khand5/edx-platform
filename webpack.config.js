@@ -72,7 +72,8 @@ var wpconfig = {
                 use: {
                     loader: 'imports-loader',
                     options: {
-                        AjaxPrefix: 'exports-loader?this.AjaxPrefix!../../../../common/static/coffee/src/ajax_prefix.coffee'
+                        AjaxPrefix:
+                            'exports-loader?this.AjaxPrefix!../../../../common/static/coffee/src/ajax_prefix.coffee'
                     }
                 }
             }
