@@ -13,6 +13,7 @@ log = getLogger(__name__)
 
 from celery_utils.logged_task import LoggedTask
 from celery_utils.persist_on_failure import PersistOnFailureTask
+from celery_utils.models import ChordData
 from courseware.model_data import get_score
 from lms.djangoapps.course_blocks.api import get_course_blocks
 from lms.djangoapps.courseware import courses
@@ -53,8 +54,14 @@ def add(x, y):
 
 
 @task()
-def tsum(nums):
-    return sum(nums)
+def tsum(results):
+    """
+    The parameter here is weird; I'm trying to asynchronously execute a task with an iterator and celery complains that its hard to serialize that
+    """
+    _sum = 0
+    for num in results():
+        _sum = _sum + num
+    return _sum
 
 
 class _BaseTask(PersistOnFailureTask, LoggedTask):  # pylint: disable=abstract-method

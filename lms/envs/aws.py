@@ -66,7 +66,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 BROKER_POOL_LIMIT = 0
 BROKER_CONNECTION_TIMEOUT = 1
 
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERY_RESULT_BACKEND = 'celery_utils.backends:ChordableDjangoBackend'
 
 # When the broker is behind an ELB, use a heartbeat to refresh the
 # connection and to detect if it has been dropped.
