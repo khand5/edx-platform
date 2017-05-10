@@ -467,7 +467,7 @@
                 student_id: uniqStudentIdentifier,
                 problem_id: problemToReset
             });
-            rescoreUnsupportedMessage = gettext("This component cannot be rescored.");
+            rescoreUnsupportedMessage = gettext('This component cannot be rescored.');
             return $.ajax({
                 type: 'POST',
                 dataType: 'json',
@@ -477,7 +477,7 @@
                     return alert(fullSuccessMessage);  // eslint-disable-line no-alert
                 }),
                 error: statusAjaxError(function(response) {
-                    if (response.responseText == "Specified module does not support rescoring."){
+                    if (response.responseText === 'Specified module does not support rescoring.') {
                         return that.$request_err_grade.text(rescoreUnsupportedMessage);
                     }
                     return that.$request_err_grade.text(fullErrorMessage);
@@ -551,7 +551,7 @@
                 fullErrorMessage = _.template(errorMessage)({
                     problem_id: problemToReset
                 });
-                rescoreUnsupportedMessage = gettext("This component cannot be rescored.");
+                rescoreUnsupportedMessage = gettext('This component cannot be rescored.');
                 return $.ajax({
                     type: 'POST',
                     dataType: 'json',
@@ -561,7 +561,7 @@
                         return alert(fullSuccessMessage);  // eslint-disable-line no-alert
                     }),
                     error: statusAjaxError(function(response) {
-                        if (response.responseText == "Specified module does not support rescoring."){
+                        if (response.responseText === 'Specified module does not support rescoring.') {
                             return that.$request_err_grade.text(rescoreUnsupportedMessage);
                         }
                         return that.$request_response_error_all.text(fullErrorMessage);
