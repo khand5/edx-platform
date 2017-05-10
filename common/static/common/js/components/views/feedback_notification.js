@@ -29,5 +29,6 @@
             miniOptions.closeIcon = false;
 
             return Notification;
-        });
+        }
+    );
 }).call(this, define || RequireJS.define);
