@@ -48,8 +48,10 @@ KNOWN_RETRY_ERRORS = (  # Errors we expect occasionally, should be resolved on r
 RECALCULATE_GRADE_DELAY = 2  # in seconds, to prevent excessive _has_db_updated failures. See TNL-6424.
 
 
-@task()
+@task(max_retries=2, default_retry_delay=10)
 def add(x, y):
+    if x is 2:
+        raise add.retry(x=x, y=y, exc=NotImplementedError("WASTED"))
     return x + y
 
 
