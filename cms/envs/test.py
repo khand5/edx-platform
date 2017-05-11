@@ -194,7 +194,7 @@ simplefilter('ignore')
 ################################# CELERY ######################################
 
 CELERY_ALWAYS_EAGER = True
-CELERY_RESULT_BACKEND = 'celery_utils.backends:ChordableDjangoBackend'
+CELERY_RESULT_BACKEND = 'djcelery.backends.cache:CacheBackend'
 
 CLEAR_REQUEST_CACHE_ON_TASK_COMPLETION = False
 
