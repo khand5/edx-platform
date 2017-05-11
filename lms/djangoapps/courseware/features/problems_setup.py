@@ -259,8 +259,7 @@ def answer_problem(course, problem_type, correctness):
             ),
             input_value
         )
-        # this appears to serve no purpose
-        # world.css_check(inputfield(course, problem_type, choice=choice))
+        world.css_check(inputfield(course, problem_type, choice=choice))
     elif problem_type == 'image':
         offset = 25 if correctness == "correct" else -25
 
