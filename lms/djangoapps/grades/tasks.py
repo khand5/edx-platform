@@ -2,7 +2,7 @@
 This module contains tasks for asynchronous execution of grade updates.
 """
 
-from celery import task
+from celery import current_app, task
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -11,9 +11,9 @@ from logging import getLogger
 
 log = getLogger(__name__)
 
+from celery_utils.backends import ChordableDjangoBackend
 from celery_utils.logged_task import LoggedTask
 from celery_utils.persist_on_failure import PersistOnFailureTask
-from celery_utils.models import ChordData
 from courseware.model_data import get_score
 from lms.djangoapps.course_blocks.api import get_course_blocks
 from lms.djangoapps.courseware import courses
@@ -48,20 +48,17 @@ KNOWN_RETRY_ERRORS = (  # Errors we expect occasionally, should be resolved on r
 RECALCULATE_GRADE_DELAY = 2  # in seconds, to prevent excessive _has_db_updated failures. See TNL-6424.
 
 
-@task(max_retries=2, default_retry_delay=10)
+@task(max_retries=2, default_retry_delay=10, backend=ChordableDjangoBackend(current_app))
 def add(x, y):
     if x is 2:
         raise add.retry(x=x, y=y, exc=NotImplementedError("WASTED"))
     return x + y
 
 
-@task()
+@task(backend=ChordableDjangoBackend(current_app))
 def tsum(results):
-    """
-    The parameter here is weird; I'm trying to asynchronously execute a task with an iterator and celery complains that its hard to serialize that
-    """
     _sum = 0
-    for num in results():
+    for num in results:
         _sum = _sum + num
     return _sum
 
