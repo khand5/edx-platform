@@ -162,6 +162,10 @@ class EnterpriseApiClient(object):
                 a response. This exception is raised for both connection timeout and read timeout.
 
         """
+        if not user.is_authenticated():
+            LOGGER.error(u'Given user %s is not an authenticated user', user)
+            return None
+
         api_resource_name = 'enterprise-learner'
 
         cache_key = get_cache_key(
