@@ -58,6 +58,11 @@ from util.milestones_helpers import is_entrance_exams_enabled
 from util.model_utils import emit_field_changed_events, get_changed_fields_dict
 from util.query import use_read_replica_if_available
 
+# Mailchimp user subscription
+import os
+import sys
+from mailsnake import MailSnake
+
 UNENROLL_DONE = Signal(providing_args=["course_enrollment", "skip_refund"])
 ENROLL_STATUS_CHANGE = Signal(providing_args=["event", "user", "course_id", "mode", "cost", "currency"])
 log = logging.getLogger(__name__)
@@ -508,7 +513,6 @@ class UserTestGroup(models.Model):
     name = models.CharField(blank=False, max_length=32, db_index=True)
     description = models.TextField(blank=True)
 
-
 class Registration(models.Model):
     ''' Allows us to wait for e-mail before user is registered. A
         registration profile is created when the user creates an
@@ -532,6 +536,8 @@ class Registration(models.Model):
         self._track_activation()
         self.user.save()
         log.info(u'User %s (%s) account is successfully activated.', self.user.username, self.user.email)
+        # Adds user to $MAILCHIMP_LIST_ID email list using $MAILCHIMP_API_KEY
+        self._subscribe_to_mailchimp(self.user.email, self.user.username)
 
     def _track_activation(self):
         """ Update the isActive flag in mailchimp for activated users."""
@@ -552,6 +558,39 @@ class Registration(models.Model):
                 }
             ]
             analytics.identify(*identity_args)
+
+    def _subscribe_to_mailchimp(self, user_email, user_name):
+        """Subscribes user to Cognitive Class mailchimp mailing list"""
+
+        try:
+            # Riases KeyError if environment variables
+            # $MAILCHIMP_API_KEY or $MAILCHIMP_LIST_ID are not set
+            MAILCHIMP_API_KEY = os.environ['MAILCHIMP_API_KEY']
+            MAILCHIMP_LIST_ID = os.environ['MAILCHIMP_LIST_ID']
+
+            ms = MailSnake(MAILCHIMP_API_KEY)
+            ms.listSubscribe(
+                id = MAILCHIMP_LIST_ID,
+                email_address = user_email,
+                merge_vars = {
+                    'FNAME': user_name,
+                    'LNAME': '',
+                    },
+                update_existing = True,
+                double_optin = False,
+            )
+        except KeyError:
+            log.info(
+                "Warning: environment variables MAILCHIMP_API_KEY or " +
+                "MAILCHIMP_LIST_ID or both not set. User will not be " +
+                "subscribed to Cognitive Class mailchimp email list. "
+            )
+        except:
+            log.info(
+                "An error has occurred. " +
+                "This might be caused because the user has already " +
+                "been have subscribed to Cognitive Class email list. "
+            )
 
 
 class PendingNameChange(models.Model):
