@@ -4,6 +4,7 @@ URLs for student app
 
 from django.conf import settings
 from django.conf.urls import patterns, url
+from django.views.generic import RedirectView
 
 from student.views import LogoutView
 
@@ -24,6 +25,7 @@ urlpatterns = (
 
     url(r'^create_account$', 'create_account', name='create_account'),
     url(r'^activate/(?P<key>[^/]*)$', 'activate_account', name="activate"),
+    url(r'^welcome_page', 'welcome_page', name='welcome_page'),
 
     url(r'^accounts/disable_account_ajax$', 'disable_account_ajax', name="disable_account_ajax"),
     url(r'^accounts/manage_user_standing', 'manage_user_standing', name='manage_user_standing'),

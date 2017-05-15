@@ -1,0 +1,29 @@
+<%page expression_filter="h"/>
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<%!
+from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
+from openedx.core.djangolib.markup import HTML, Text
+%>
+
+<section class="container activation">
+
+  <section>
+    <h1>${_("Hello! Welcome to Cognitive Class!")}</h1>
+    <hr class="horizontal-divider">
+    <p class="copy-lead">Blunt sprang haggardly wow crud one alas familiarly a far dear much some more hey far within on less obediently then proved since this more repusively much ouch along peered raving far wherever gazelle so seal rooster poetically far. (lead copy)</p>
+    <hr class="horizontal-divider">
+
+    <p>
+      %if user_logged_in:
+        ${Text(_("Visit your {link_start}dashboard{link_end} to see your courses.")).format(
+            link_start=HTML('<a href="{url}">').format(url=reverse('dashboard')), link_end=HTML('</a>'))}
+      %else:
+        ${Text(_("You can now {link_start}sign in{link_end}.")).format(
+            link_start=HTML('<a href="{url}">').format(url=reverse('signin_user')), link_end=HTML('</a>'))}
+      %endif
+    </p>
+  </section>
+
+</section>

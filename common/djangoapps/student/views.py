@@ -129,6 +129,7 @@ from openedx.core.djangoapps.theming import helpers as theming_helpers
 from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.catalog.utils import get_programs_data
 
+from django.http import HttpResponseRedirect
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -2162,6 +2163,7 @@ def activate_account(request, key):
         if not regs[0].user.is_active:
             regs[0].activate()
             already_active = False
+            return HttpResponseRedirect("/welcome_page/")
 
         # Enroll student in any pending courses he/she may have if auto_enroll flag is set
         _enroll_user_in_pending_courses(regs[0].user)
@@ -2180,6 +2182,20 @@ def activate_account(request, key):
             {'csrf': csrf(request)['csrf_token']}
         )
     return HttpResponseServerError(_("Unknown error. Please e-mail us to let us know how it happened."))
+
+@ensure_csrf_cookie
+def welcome_page(request):
+    """ Activated user welcome page. Redirect from activate_account """
+    user_logged_in = request.user.is_authenticated()
+    resp = render_to_response(
+        "registration/welcome_page.html",
+        {
+            'user_logged_in': user_logged_in,
+            'username': request.user.username,
+            # 'useremail': request.user.email
+        }
+    )
+    return resp
 
 
 @csrf_exempt
