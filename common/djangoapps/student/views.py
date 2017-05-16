@@ -2166,7 +2166,7 @@ def activate_account(request, key):
 
         # Enroll student in any pending courses he/she may have if auto_enroll flag is set
         _enroll_user_in_pending_courses(regs[0].user)
-        if not already_active: return HttpResponseRedirect("/welcome_page/")
+        if not already_active: return HttpResponseRedirect("https://bigdatauniversity.com/welcome/")
 
         resp = render_to_response(
             "registration/activation_complete.html",
@@ -2183,19 +2183,19 @@ def activate_account(request, key):
         )
     return HttpResponseServerError(_("Unknown error. Please e-mail us to let us know how it happened."))
 
-@ensure_csrf_cookie
-def welcome_page(request):
-    """ Activated user welcome page. Redirect from activate_account """
-    user_logged_in = request.user.is_authenticated()
-    resp = render_to_response(
-        "registration/welcome_page.html",
-        {
-            'user_logged_in': user_logged_in,
-            'username': request.user.username,
-            # 'useremail': request.user.email
-        }
-    )
-    return resp
+# @ensure_csrf_cookie
+# def welcome_page(request):
+#     """ Activated user welcome page. Redirect from activate_account """
+#     user_logged_in = request.user.is_authenticated()
+#     resp = render_to_response(
+#         "registration/welcome_page.html",
+#         {
+#             'user_logged_in': user_logged_in,
+#             'username': request.user.username,
+#             # 'useremail': request.user.email
+#         }
+#     )
+#     return resp
 
 
 @csrf_exempt
