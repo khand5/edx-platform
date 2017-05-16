@@ -2163,10 +2163,10 @@ def activate_account(request, key):
         if not regs[0].user.is_active:
             regs[0].activate()
             already_active = False
-            return HttpResponseRedirect("/welcome_page/")
 
         # Enroll student in any pending courses he/she may have if auto_enroll flag is set
         _enroll_user_in_pending_courses(regs[0].user)
+        if not already_active: return HttpResponseRedirect("/welcome_page/")
 
         resp = render_to_response(
             "registration/activation_complete.html",
