@@ -57,9 +57,11 @@ import calendar
           nextUrl = json.redirect_url; // Most likely third party auth completion. This trumps 'nextUrl' above.
         }
         if (!isExternal(nextUrl)) {
-          location.href=nextUrl;
+          //location.href=nextUrl;
+          location.href="www.bigdatauniversity.com/welcome"
         } else {
-          location.href="${reverse('dashboard')}";
+          // location.href="${reverse('dashboard')}";
+          location.href="www.bigdatauniversity.com/welcome"
         }
       });
 

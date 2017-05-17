@@ -801,6 +801,12 @@ def dashboard(request):
 
     response = render_to_response('dashboard.html', context)
     set_user_info_cookie(response, request)
+
+    print(request)
+    if request.META.get('HTTP_REFERER'):
+        if request.META.get('HTTP_REFERER') == "http://0.0.0.0:8000/register":
+            return redirect("h/welcome/")
+
     return response
 
 
