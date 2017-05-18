@@ -130,6 +130,8 @@ from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.catalog.utils import get_programs_data
 
 
+from django.http import HttpResponseRedirect
+
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
 ReverifyInfo = namedtuple('ReverifyInfo', 'course_id course_name course_number date status display')  # pylint: disable=invalid-name
@@ -797,6 +799,10 @@ def dashboard(request):
             'use_ecommerce_payment_flow': True,
             'ecommerce_payment_page': ecommerce_service.payment_page_url(),
         })
+
+    if request.META.get('HTTP_REFERER'):
+        if request.META.get('HTTP_REFERER') == "http://0.0.0.0:8000/register":
+            return redirect("https://bigdatauniversity.com/welcome-unactivated/")
 
     response = render_to_response('dashboard.html', context)
     set_user_info_cookie(response, request)
@@ -2166,6 +2172,8 @@ def activate_account(request, key):
         # Enroll student in any pending courses he/she may have if auto_enroll flag is set
         _enroll_user_in_pending_courses(regs[0].user)
 
+        if already_active == False: return HttpResponseRedirect("https://bigdatauniversity.com/welcome/")
+
         resp = render_to_response(
             "registration/activation_complete.html",
             {
@@ -2179,6 +2187,8 @@ def activate_account(request, key):
             "registration/activation_invalid.html",
             {'csrf': csrf(request)['csrf_token']}
         )
+
+
     return HttpResponseServerError(_("Unknown error. Please e-mail us to let us know how it happened."))
 
 
